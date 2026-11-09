@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="de" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PaperSMP - Der ultimative Minecraft SMP Server</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            purple: '#9333ea',
+                            cyan: '#06b6d4',
+                            emerald: '#10b981',
+                            pink: '#ec4899',
+                            amber: '#f59e0b',
+                            dark: '#05050a',
+                            card: '#0f0f1b',
+                            accent: '#a855f7'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        orbitron: ['Orbitron', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'neon-purple': '0 0 30px -5px rgba(147, 51, 234, 0.6)',
+                        'neon-cyan': '0 0 30px -5px rgba(6, 182, 212, 0.6)',
+                        'neon-emerald': '0 0 30px -5px rgba(16, 185, 129, 0.6)',
+                        'neon-pink': '0 0 30px -5px rgba(236, 72, 153, 0.6)',
+                        'glow': '0 0 50px -10px rgba(168, 85, 247, 0.5)',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@500;700;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #04040a;
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+        /* Animated Background Gradients & Grids */
+        .bg-grid-pattern {
+            background-size: 50px 50px;
+            background-image: 
+                linear-gradient(to right, rgba(168, 85, 247, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(6, 182, 212, 0.05) 1px, transparent 1px);
+        }
+        .glass-panel {
+            background: rgba(15, 15, 28, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: rgba(168, 85, 247, 0.5);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px -15px rgba(147, 51, 234, 0.4);
+        }
+        /* Gradient Text */
+        .text-gradient {
+            background: linear-gradient(135deg, #c084fc 0%, #38bdf8 50%, #34d399 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        /* Glowing pulse animation */
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 0.85; transform: scale(1.08); }
+        }
+        .animate-glow {
+            animation: pulse-glow 7s infinite ease-in-out;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(1deg); }
+        }
+        .animate-float {
+            animation: float 5s infinite ease-in-out;
+        }
+        .animate-float-delayed-1 {
+            animation: float 6s infinite ease-in-out 1s;
+        }
+        .animate-float-delayed-2 {
+            animation: float 5.5s infinite ease-in-out 2s;
+        }
+        .hero-banner-img {
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
+        }
+    </style>
+</head>
+<body class="relative min-h-screen selection:bg-purple-500 selection:text-white">
+
+    <!-- Glowing Orbs -->
+    <div class="fixed top-0 left-1/4 w-[600px] h-[600px] bg-purple-600/25 rounded-full blur-[150px] pointer-events-none animate-glow"></div>
+    <div class="fixed bottom-1/3 right-1/4 w-[700px] h-[700px] bg-cyan-600/20 rounded-full blur-[180px] pointer-events-none animate-glow" style="animation-delay: 3.5s;"></div>
+    <div class="fixed top-1/2 right-10 w-[450px] h-[450px] bg-pink-600/15 rounded-full blur-[140px] pointer-events-none animate-glow" style="animation-delay: 2s;"></div>
+
+    <!-- Grid Pattern Overlay -->
+    <div class="fixed inset-0 bg-grid-pattern pointer-events-none z-0"></div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 ease-out glass-panel px-6 py-4 rounded-2xl border border-purple-500/50 flex items-center space-x-4 shadow-neon-purple">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-500 flex items-center justify-center text-white font-bold text-xl shadow-lg">
+            <i class="fa-solid fa-check"></i>
+        </div>
+        <div>
+            <h4 class="font-extrabold text-white text-base" id="toast-title">Server-IP kopiert!</h4>
+            <p class="text-xs text-purple-200" id="toast-msg">PaperSMP-de.aternos.me ist in deiner Zwischenablage.</p>
+        </div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-40 w-full border-b border-white/10 glass-panel">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                
+                <!-- Logo -->
+                <a href="#" class="flex items-center space-x-3 group">
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-purple-600 via-pink-500 to-cyan-400 p-0.5 group-hover:shadow-neon-purple transition-all duration-300 transform group-hover:rotate-6">
+                        <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
+                            <i class="fa-solid fa-cube text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 text-2xl"></i>
+                        </div>
+                    </div>
+                    <span class="font-orbitron font-black text-2xl tracking-wider text-white">Paper<span class="text-gradient">SMP</span></span>
+                </a>
+
+                <!-- Desktop Nav Links -->
+                <nav class="hidden md:flex items-center space-x-8 text-sm font-semibold text-gray-300">
+                    <a href="#hero" class="hover:text-purple-400 transition-colors py-1 relative group">
+                        Startseite
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-cyan-400 group-hover:w-full transition-all duration-300"></span>
+                    </a>
+                    <a href="#features" class="hover:text-purple-400 transition-colors py-1 relative group">
+                        Features
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-cyan-400 group-hover:w-full transition-all duration-300"></span>
+                    </a>
+                    <a href="#gallery" class="hover:text-purple-400 transition-colors py-1 relative group">
+                        Welt & Bilder
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-cyan-400 group-hover:w-full transition-all duration-300"></span>
+                    </a>
+                    <a href="#rules" class="hover:text-purple-400 transition-colors py-1 relative group">
+                        Regeln & Befehle
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-cyan-400 group-hover:w-full transition-all duration-300"></span>
+                    </a>
+                    <a href="#how-to-join" class="hover:text-purple-400 transition-colors py-1 relative group">
+                        Anleitung
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-cyan-400 group-hover:w-full transition-all duration-300"></span>
+                    </a>
+                </nav>
+
+                <!-- Quick Copy IP Header Button -->
+                <div class="hidden lg:flex items-center space-x-4">
+                    <button onclick="copyIP('PaperSMP-de.aternos.me')" class="relative group px-5 py-2.5 rounded-xl font-bold text-xs text-white overflow-hidden bg-gradient-to-r from-purple-600 via-pink-500 to-cyan-500 p-[2px] hover:shadow-neon-purple transition-all duration-300 active:scale-95">
+                        <span class="block px-4 py-2 rounded-[10px] bg-slate-950/90 group-hover:bg-transparent transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-copy text-cyan-400 group-hover:text-white text-sm"></i>
+                            <span class="text-gray-300 group-hover:text-white">IP:</span>
+                            <span class="text-purple-300 group-hover:text-white font-mono font-extrabold tracking-wide">PaperSMP-de.aternos.me</span>
+                        </span>
+                    </button>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="p-2.5 rounded-xl text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden border-b border-white/10 glass-panel px-4 pt-3 pb-6 space-y-3">
+            <a href="#hero" class="block px-4 py-2.5 rounded-xl text-base font-semibold text-white hover:bg-white/10">Startseite</a>
+            <a href="#features" class="block px-4 py-2.5 rounded-xl text-base font-semibold text-gray-300 hover:bg-white/10">Features</a>
+            <a href="#gallery" class="block px-4 py-2.5 rounded-xl text-base font-semibold text-gray-300 hover:bg-white/10">Welt & Bilder</a>
+            <a href="#rules" class="block px-4 py-2.5 rounded-xl text-base font-semibold text-gray-300 hover:bg-white/10">Regeln & Befehle</a>
+            <a href="#how-to-join" class="block px-4 py-2.5 rounded-xl text-base font-semibold text-gray-300 hover:bg-white/10">Anleitung</a>
+            <button onclick="copyIP('PaperSMP-de.aternos.me')" class="w-full mt-3 px-4 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-500 text-white font-extrabold text-center flex items-center justify-center gap-2 shadow-neon-purple">
+                <i class="fa-solid fa-copy"></i> Server IP Kopieren
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="relative z-10">
+
+        <!-- Hero Section -->
+        <section id="hero" class="relative pt-12 pb-24 lg:pt-24 lg:pb-36 overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                    
+                    <!-- Left Hero Text -->
+                    <div class="lg:col-span-7 text-center lg:text-left z-10">
+                        
+                        <!-- Live Status Badge -->
+                        <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full glass-panel border border-emerald-400/40 text-xs font-bold mb-8 shadow-lg">
+                            <span class="relative flex h-3 w-3">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                            </span>
+                            <span class="text-emerald-400 uppercase tracking-widest font-extrabold">Aternos Server Bereit</span>
+                            <span class="text-gray-600">•</span>
+                            <span class="text-purple-300 font-mono">1.20.x</span>
+                        </div>
+
+                        <h1 class="text-4xl sm:text-6xl lg:text-7xl font-orbitron font-black tracking-tight text-white leading-none mb-6">
+                            DAS NEXT-GEN <br>
+                            <span class="text-gradient">PAPER SMP</span> ERLEBNIS
+                        </h1>
+
+                        <p class="text-lg sm:text-xl text-gray-300 mb-10 max-w-2xl mx-auto lg:mx-0 font-light leading-relaxed">
+                            Tauche ein in die ultimative Minecraft Survival-Welt! Mit berührungslosem Lag-Free PaperMC Core, eigener Wirtschaft, Quests, Custom-Homes und Crossplay für Java & Bedrock.
+                        </p>
+
+                        <!-- Hero Action Buttons -->
+                        <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-5 mb-12">
+                            <button onclick="copyIP('PaperSMP-de.aternos.me')" class="w-full sm:w-auto px-9 py-4.5 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-500 hover:from-purple-500 hover:to-cyan-400 text-white font-extrabold text-lg shadow-neon-purple transition-all duration-300 transform hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-3">
+                                <i class="fa-solid fa-gamepad text-2xl"></i> Jetzt Mitspielen
+                            </button>
+                        </div>
+
+                        <!-- Stats Preview -->
+                        <div class="grid grid-cols-3 gap-4 max-w-lg mx-auto lg:mx-0">
+                            <div class="glass-panel p-4 rounded-xl border border-white/5 text-center lg:text-left">
+                                <div class="text-2xl sm:text-3xl font-black font-orbitron text-purple-400">20.0</div>
+                                <div class="text-[11px] text-gray-400 uppercase tracking-widest font-bold mt-1">TPS Smoothness</div>
+                            </div>
+                            <div class="glass-panel p-4 rounded-xl border border-white/5 text-center lg:text-left">
+                                <div class="text-2xl sm:text-3xl font-black font-orbitron text-cyan-400">0 ms</div>
+                                <div class="text-[11px] text-gray-400 uppercase tracking-widest font-bold mt-1">Low Latency</div>
+                            </div>
+                            <div class="glass-panel p-4 rounded-xl border border-white/5 text-center lg:text-left">
+                                <div class="text-2xl sm:text-3xl font-black font-orbitron text-emerald-400">Cross</div>
+                                <div class="text-[11px] text-gray-400 uppercase tracking-widest font-bold mt-1">Java & Bedrock</div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Right Hero Visual Box -->
+                    <div class="lg:col-span-5 relative animate-float">
+                        <div class="relative mx-auto max-w-md lg:max-w-none">
+                            
+                            <!-- Neon Aura -->
+                            <div class="absolute -inset-2 bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-500 rounded-3xl blur-2xl opacity-50"></div>
+
+                            <div class="relative glass-panel rounded-3xl overflow-hidden border border-white/15 shadow-2xl">
+                                
+                                <!-- Server Banner Image Preview -->
+                                <div class="relative h-56 overflow-hidden bg-slate-900">
+                                    <img src="https://images.unsplash.com/photo-1627856013091-fed6e4e30025?q=80&w=800&auto=format&fit=crop" alt="Minecraft Castle Spawn" class="w-full h-full object-cover hero-banner-img transform hover:scale-110 transition duration-700">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+                                    <div class="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 text-xs font-mono font-bold text-emerald-400 flex items-center gap-2">
+                                        <i class="fa-solid fa-shield-halved"></i> Survival SMP Server
+                                    </div>
+                                </div>
+
+                                <div class="p-6 sm:p-8 space-y-6">
+                                    
+                                    <!-- Server IP Copy Field -->
+                                    <div>
+                                        <div class="flex justify-between items-center mb-2">
+                                            <span class="text-xs uppercase font-extrabold tracking-wider text-purple-300">Server Adresse (IP)</span>
+                                            <span class="text-[10px] text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/30 font-bold">Aternos Online</span>
+                                        </div>
+                                        <div class="flex items-center justify-between bg-slate-950 border border-purple-500/30 rounded-2xl p-3.5 shadow-inner">
+                                            <span class="text-cyan-300 font-mono font-extrabold text-sm sm:text-base tracking-wide select-all">PaperSMP-de.aternos.me</span>
+                                            <button onclick="copyIP('PaperSMP-de.aternos.me')" class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-xs shadow-md transition-all active:scale-95 flex items-center gap-1.5">
+                                                <i class="fa-solid fa-copy"></i> Kopieren
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Quick Port Info -->
+                                    <div class="grid grid-cols-2 gap-3 text-xs">
+                                        <div class="bg-white/5 rounded-xl p-3 border border-white/5">
+                                            <div class="text-gray-400">Java Port</div>
+                                            <div class="font-mono font-bold text-white text-sm mt-0.5">61344</div>
+                                        </div>
+                                        <div class="bg-white/5 rounded-xl p-3 border border-white/5">
+                                            <div class="text-gray-400">Bedrock Port</div>
+                                            <div class="font-mono font-bold text-cyan-300 text-sm mt-0.5">19132</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Highlights -->
+                                    <div class="space-y-2.5 text-xs text-gray-300 pt-2 border-t border-white/10">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-xs"><i class="fa-solid fa-check"></i></div>
+                                            <span>Kein Land-Griefing dank sicherem Protection-System</span>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold text-xs"><i class="fa-solid fa-check"></i></div>
+                                            <span>Schnelle Teleportation mit <code class="text-cyan-300 font-mono">/home</code> & <code class="text-cyan-300 font-mono">/rtp</code></span>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs"><i class="fa-solid fa-check"></i></div>
+                                            <span>Aktive Community & Wöchentliche Community-Events</span>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Dynamic Features Grid Section -->
+        <section id="features" class="py-24 relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center max-w-3xl mx-auto mb-20">
+                    <h2 class="text-xs font-black text-purple-400 uppercase tracking-widest mb-3">Maximale Performance & Spaß</h2>
+                    <p class="text-3xl sm:text-5xl font-orbitron font-black text-white">Feature Highlights</p>
+                    <p class="text-gray-400 mt-4 text-base sm:text-lg">Entdecke, was PaperSMP von normalen Standard-Servern unterscheidet.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    
+                    <!-- Feature 1: Paper Engine -->
+                    <div class="glass-card rounded-3xl p-8 relative overflow-hidden group animate-float">
+                        <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-purple-600/10 rounded-full blur-2xl group-hover:bg-purple-600/30 transition-all"></div>
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 p-0.5 mb-6 group-hover:scale-110 transition-transform">
+                            <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-purple-400 text-2xl">
+                                <i class="fa-solid fa-bolt-lightning"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-3">Ultra PaperMC Core</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Optimiertes Chunk-Loading und Redstone-Tick-Managements garantieren flüssige 20.0 TPS selbst bei vielen Bauprojekten und Farmen.
+                        </p>
+                    </div>
+
+                    <!-- Feature 2: Homes & Teleportation -->
+                    <div class="glass-card rounded-3xl p-8 relative overflow-hidden group animate-float-delayed-1">
+                        <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-emerald-600/10 rounded-full blur-2xl group-hover:bg-emerald-600/30 transition-all"></div>
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-0.5 mb-6 group-hover:scale-110 transition-transform">
+                            <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-emerald-400 text-2xl">
+                                <i class="fa-solid fa-house-user"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-3">Bequemes Home-System</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Speichere deine Basen mit <span class="text-emerald-400 font-mono font-bold">/sethome [Name]</span> ab. Mit <span class="text-emerald-400 font-mono font-bold">/homes</span> behältst du jederzeit die volle Kontrolle über deine Teleportpunkte.
+                        </p>
+                    </div>
+
+                    <!-- Feature 3: Economy & Shops -->
+                    <div class="glass-card rounded-3xl p-8 relative overflow-hidden group animate-float-delayed-2">
+                        <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-amber-600/10 rounded-full blur-2xl group-hover:bg-amber-600/30 transition-all"></div>
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-yellow-600 p-0.5 mb-6 group-hover:scale-110 transition-transform">
+                            <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-amber-400 text-2xl">
+                                <i class="fa-solid fa-coins"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-3">Player Shops & Wirtschaft</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Tausche wertvolle Ressourcen, gründe deinen eigenen Marktplatz-Shop oder überweise Geld an Freunde ganz einfach mit dem Ingame-Bankingsystem.
+                        </p>
+                    </div>
+
+                    <!-- Feature 4: Crossplay -->
+                    <div class="glass-card rounded-3xl p-8 relative overflow-hidden group animate-float-delayed-1">
+                        <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-cyan-600/10 rounded-full blur-2xl group-hover:bg-cyan-600/30 transition-all"></div>
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 p-0.5 mb-6 group-hover:scale-110 transition-transform">
+                            <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-cyan-400 text-2xl">
+                                <i class="fa-solid fa-gamepad"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-3">Crossplay (Java & Bedrock)</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Ob PC, iOS, Android, Xbox, PlayStation oder Nintendo Switch – dank Geyser-Bridge spielen alle Spieler ohne Einschränkungen zusammen.
+                        </p>
+                    </div>
+
+                    <!-- Feature 5: Protection & Anti-Griefing -->
+                    <div class="glass-card rounded-3xl p-8 relative overflow-hidden group animate-float-delayed-2">
+                        <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-pink-600/10 rounded-full blur-2xl group-hover:bg-pink-600/30 transition-all"></div>
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-pink-500 to-rose-600 p-0.5 mb-6 group-hover:scale-110 transition-transform">
+                            <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-pink-400 text-2xl">
+                                <i class="fa-solid fa-shield-cat"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-3">Anti-Griefing Rollbacks</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Keine Sorge um deine Bauten! Unser Logging-System zeichnet Veränderungen auf. Im Notfall stellt das Team beschädigte Zonen im Sekundenbruchteil wieder her.
+                        </p>
+                    </div>
+
+                    <!-- Feature 6: Quests & Events -->
+                    <div class="glass-card rounded-3xl p-8 relative overflow-hidden group animate-float">
+                        <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-purple-600/10 rounded-full blur-2xl group-hover:bg-purple-600/30 transition-all"></div>
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 p-0.5 mb-6 group-hover:scale-110 transition-transform">
+                            <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-purple-300 text-2xl">
+                                <i class="fa-solid fa-trophy"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-3">Events & Belohnungen</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Regelmäßige Server-Events wie PVP-Turniere, Schnitzeljagden und Bauwettbewerbe bieten tolle Gewinne, Belohnungsschlüssel und einzigartige Titel.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Visual World & Showcase Gallery Section -->
+        <section id="gallery" class="py-20 relative bg-black/40 border-y border-white/5">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <h2 class="text-xs font-black text-cyan-400 uppercase tracking-widest mb-3">Eindrücke der Welt</h2>
+                    <p class="text-3xl sm:text-5xl font-orbitron font-black text-white">Galerie & Schauplätze</p>
+                    <p class="text-gray-400 mt-4 text-base">Ein Blick auf die spektakulären Orte und Bauwerke unserer Community.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
+                    <!-- Gallery Card 1 -->
+                    <div class="glass-card rounded-3xl overflow-hidden group border border-white/10 animate-float">
+                        <div class="relative h-64 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800&auto=format&fit=crop" alt="Haupt-Spawn" class="w-full h-full object-cover group-hover:scale-110 transition duration-700" onerror="this.src='https://placehold.co/800x600/1e1b4b/a855f7?text=PaperSMP+Spawn'">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-80"></div>
+                            <div class="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+                                <div>
+                                    <span class="px-2.5 py-1 rounded-md bg-purple-600/80 text-white text-[10px] font-mono font-bold uppercase">Spawn Area</span>
+                                    <h4 class="text-xl font-bold text-white mt-1">Der Haupt-Spawn</h4>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white">
+                                    <i class="fa-solid fa-location-dot text-purple-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gallery Card 2 -->
+                    <div class="glass-card rounded-3xl overflow-hidden group border border-white/10 animate-float-delayed-1">
+                        <div class="relative h-64 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800&auto=format&fit=crop" alt="Player Shops" class="w-full h-full object-cover group-hover:scale-110 transition duration-700" onerror="this.src='https://placehold.co/800x600/065f46/34d399?text=Player+Shops'">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-80"></div>
+                            <div class="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+                                <div>
+                                    <span class="px-2.5 py-1 rounded-md bg-cyan-600/80 text-white text-[10px] font-mono font-bold uppercase">Marktplatz</span>
+                                    <h4 class="text-xl font-bold text-white mt-1">Spieler-Handelsdorf</h4>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white">
+                                    <i class="fa-solid fa-shop text-cyan-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gallery Card 3 -->
+                    <div class="glass-card rounded-3xl overflow-hidden group border border-white/10 animate-float-delayed-2">
+                        <div class="relative h-64 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1627856013091-fed6e4e30025?q=80&w=800&auto=format&fit=crop" alt="PVP Arena" class="w-full h-full object-cover group-hover:scale-110 transition duration-700" onerror="this.src='https://placehold.co/800x600/831843/f472b6?text=PvP+Arena'">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-80"></div>
+                            <div class="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+                                <div>
+                                    <span class="px-2.5 py-1 rounded-md bg-pink-600/80 text-white text-[10px] font-mono font-bold uppercase">Kampfzone</span>
+                                    <h4 class="text-xl font-bold text-white mt-1">Die PvP Colosseum Arena</h4>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white">
+                                    <i class="fa-solid fa-swords text-pink-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Rules & Commands Section -->
+        <section id="rules" class="py-24 relative">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center mb-14">
+                    <h2 class="text-xs font-black text-emerald-400 uppercase tracking-widest mb-3">Wissen & Verhaltensregeln</h2>
+                    <p class="text-3xl sm:text-5xl font-orbitron font-black text-white">Regeln & Ingame Befehle</p>
+                </div>
+
+                <!-- Tab Navigation Buttons -->
+                <div class="flex justify-center mb-10 p-1.5 glass-panel rounded-2xl max-w-md mx-auto border border-white/10">
+                    <button id="btn-tab-rules" onclick="switchTab('rules')" class="w-1/2 py-3 rounded-xl font-bold text-sm sm:text-base bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-shield"></i> Serverregeln
+                    </button>
+                    <button id="btn-tab-commands" onclick="switchTab('commands')" class="w-1/2 py-3 rounded-xl font-bold text-sm sm:text-base text-gray-400 hover:text-white transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-terminal"></i> Befehle
+                    </button>
+                </div>
+
+                <!-- TAB CONTENT: RULES -->
+                <div id="tab-content-rules" class="space-y-4">
+                    
+                    <div class="glass-panel p-6 rounded-2xl border border-white/10 flex items-start gap-5 hover:border-red-500/40 transition">
+                        <div class="w-10 h-10 rounded-xl bg-red-500/20 border border-red-500/40 flex items-center justify-center text-red-400 font-bold text-lg flex-shrink-0">1</div>
+                        <div>
+                            <h4 class="font-bold text-white text-lg">Keine Cheats, Hacks oder Modifikationen</h4>
+                            <p class="text-gray-400 text-sm mt-1 leading-relaxed">Client-Modifikationen wie X-Ray, Fly-Hacks, Killaura, Autoclicker oder Duplizierungs-Tricks werden direkt erkannt und führen zu einem permanenten Bann.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl border border-white/10 flex items-start gap-5 hover:border-purple-500/40 transition">
+                        <div class="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-400 font-bold text-lg flex-shrink-0">2</div>
+                        <div>
+                            <h4 class="font-bold text-white text-lg">Griefing & Diebstahl sind untersagt</h4>
+                            <p class="text-gray-400 text-sm mt-1 leading-relaxed">Das Mutwillige Zerstören von Bauten anderer Spieler oder das Stehlen aus Fremd-Kisten ist verboten und wird per Rollback zurückgesetzt.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl border border-white/10 flex items-start gap-5 hover:border-cyan-500/40 transition">
+                        <div class="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-bold text-lg flex-shrink-0">3</div>
+                        <div>
+                            <h4 class="font-bold text-white text-lg">Respektvoller Umgang & Fairplay</h4>
+                            <p class="text-gray-400 text-sm mt-1 leading-relaxed">Kein Spamming, Beleidigungen oder Werbung für fremde Server im öffentlichen Chat. Bleibt freundlich und helft neuen Spielern.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl border border-white/10 flex items-start gap-5 hover:border-emerald-500/40 transition">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-bold text-lg flex-shrink-0">4</div>
+                        <div>
+                            <h4 class="font-bold text-white text-lg">Redstone & AFK-Farmen</h4>
+                            <p class="text-gray-400 text-sm mt-1 leading-relaxed">Große Redstone-Maschinen müssen immer über einen Schalter deaktivierbar sein, um unbeabsichtigte Server-Lags zu vermeiden.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- TAB CONTENT: COMMANDS -->
+                <div id="tab-content-commands" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+                    
+                    <div class="glass-panel p-5 rounded-2xl border border-white/10 flex items-center justify-between hover:border-cyan-500/50 transition">
+                        <div>
+                            <span class="font-mono font-extrabold text-cyan-300 text-base bg-cyan-950/80 px-3 py-1 rounded-lg border border-cyan-500/30">/rtp</span>
+                            <p class="text-xs text-gray-300 mt-2.5">Teleportiert dich zufällig in der Welt für deine Basissuche.</p>
+                        </div>
+                        <i class="fa-solid fa-shuffle text-cyan-400 text-2xl"></i>
+                    </div>
+
+                    <div class="glass-panel p-5 rounded-2xl border border-white/10 flex items-center justify-between hover:border-emerald-500/50 transition">
+                        <div>
+                            <span class="font-mono font-extrabold text-emerald-300 text-base bg-emerald-950/80 px-3 py-1 rounded-lg border border-emerald-500/30">/sethome [Name]</span>
+                            <p class="text-xs text-gray-300 mt-2.5">Erstellt deinen eigenen Teleport-Punkt an deiner Position.</p>
+                        </div>
+                        <i class="fa-solid fa-house-user text-emerald-400 text-2xl"></i>
+                    </div>
+
+                    <div class="glass-panel p-5 rounded-2xl border border-white/10 flex items-center justify-between hover:border-purple-500/50 transition">
+                        <div>
+                            <span class="font-mono font-extrabold text-purple-300 text-base bg-purple-950/80 px-3 py-1 rounded-lg border border-purple-500/30">/homes</span>
+                            <p class="text-xs text-gray-300 mt-2.5">Zeigt dir eine Übersicht all deiner gespeicherten Homes.</p>
+                        </div>
+                        <i class="fa-solid fa-list-ul text-purple-400 text-2xl"></i>
+                    </div>
+
+                    <div class="glass-panel p-5 rounded-2xl border border-white/10 flex items-center justify-between hover:border-amber-500/50 transition">
+                        <div>
+                            <span class="font-mono font-extrabold text-amber-300 text-base bg-amber-950/80 px-3 py-1 rounded-lg border border-amber-500/30">/shop</span>
+                            <p class="text-xs text-gray-300 mt-2.5">Öffnet den Ingame-Adminshop zum Kaufen und Verkaufen.</p>
+                        </div>
+                        <i class="fa-solid fa-store text-amber-400 text-2xl"></i>
+                    </div>
+
+                    <div class="glass-panel p-5 rounded-2xl border border-white/10 flex items-center justify-between hover:border-pink-500/50 transition">
+                        <div>
+                            <span class="font-mono font-extrabold text-pink-300 text-base bg-pink-950/80 px-3 py-1 rounded-lg border border-pink-500/30">/tpa [Spieler]</span>
+                            <p class="text-xs text-gray-300 mt-2.5">Sendet eine Anfrage zur Teleportation zu einem Mitspieler.</p>
+                        </div>
+                        <i class="fa-solid fa-paper-plane text-pink-400 text-2xl"></i>
+                    </div>
+
+                    <div class="glass-panel p-5 rounded-2xl border border-white/10 flex items-center justify-between hover:border-blue-500/50 transition">
+                        <div>
+                            <span class="font-mono font-extrabold text-blue-300 text-base bg-blue-950/80 px-3 py-1 rounded-lg border border-blue-500/30">/pay [Spieler] [Summe]</span>
+                            <p class="text-xs text-gray-300 mt-2.5">Überweist Taler direkt auf das Konto eines Mitspielers.</p>
+                        </div>
+                        <i class="fa-solid fa-vault text-blue-400 text-2xl"></i>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Step-by-Step Join Section -->
+        <section id="how-to-join" class="py-24 relative bg-black/30 border-t border-white/5">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center max-w-3xl mx-auto mb-20">
+                    <h2 class="text-xs font-black text-purple-400 uppercase tracking-widest mb-3">Schneller Start</h2>
+                    <p class="text-3xl sm:text-5xl font-orbitron font-black text-white">In 3 Schritten Joinen</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    
+                    <!-- Step 1 -->
+                    <div class="glass-panel p-8 rounded-3xl relative text-center flex flex-col items-center border border-purple-500/30 group hover:border-purple-500 transition animate-float">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white font-orbitron font-black text-2xl flex items-center justify-center mb-6 shadow-neon-purple group-hover:scale-110 transition-transform">
+                            1
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-3">Minecraft Starten</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Starte deine Minecraft Java Edition (v1.20+) oder Bedrock Edition auf deiner Lieblingskonsole.
+                        </p>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="glass-panel p-8 rounded-3xl relative text-center flex flex-col items-center border border-cyan-500/30 group hover:border-cyan-500 transition animate-float-delayed-1">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-600 to-teal-500 text-white font-orbitron font-black text-2xl flex items-center justify-center mb-6 shadow-neon-cyan group-hover:scale-110 transition-transform">
+                            2
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-3">IP Eintragen</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-4">
+                            Klicke auf Mehrspieler &gt; Server Hinzufügen und gib unsere Server-IP ein:
+                        </p>
+                        <button onclick="copyIP('PaperSMP-de.aternos.me')" class="px-4 py-2 rounded-xl bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-mono font-bold text-xs hover:bg-cyan-900 transition">
+                            PaperSMP-de.aternos.me
+                        </button>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="glass-panel p-8 rounded-3xl relative text-center flex flex-col items-center border border-emerald-500/30 group hover:border-emerald-500 transition animate-float-delayed-2">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-600 to-green-500 text-white font-orbitron font-black text-2xl flex items-center justify-center mb-6 shadow-neon-emerald group-hover:scale-110 transition-transform">
+                            3
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-3">Spielen & Abenteuer</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Klicke auf Verbinden, setze dein erstes Home mit <span class="text-emerald-400 font-mono font-bold">/sethome</span> und starte durch!
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 glass-panel py-12 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-cyan-400 flex items-center justify-center text-white">
+                        <i class="fa-solid fa-cube"></i>
+                    </div>
+                    <span class="font-orbitron font-black text-xl text-white">Paper<span class="text-gradient">SMP</span></span>
+                    <span class="text-gray-600">|</span>
+                    <p class="text-xs text-gray-400">© 2026 PaperSMP Network. Nicht mit Mojang AB oder Microsoft verbunden.</p>
+                </div>
+
+                <div class="flex items-center space-x-6 text-sm font-semibold text-gray-400">
+                    <a href="#hero" class="hover:text-purple-400 transition-colors">Nach oben</a>
+                    <a href="https://discord.gg/SHFBMjejet" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 text-indigo-300 transition-colors flex items-center gap-2 bg-indigo-950/60 border border-indigo-500/30 px-4 py-2 rounded-xl">
+                        <i class="fa-brands fa-discord text-lg text-indigo-400"></i> Discord Joinen
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Script Section -->
+    <script>
+        // Tab switching function
+        function switchTab(tabName) {
+            const rulesTab = document.getElementById('tab-content-rules');
+            const commandsTab = document.getElementById('tab-content-commands');
+            const rulesBtn = document.getElementById('btn-tab-rules');
+            const commandsBtn = document.getElementById('btn-tab-commands');
+
+            if (tabName === 'rules') {
+                rulesTab.classList.remove('hidden');
+                commandsTab.classList.add('hidden');
+                
+                rulesBtn.className = 'w-1/2 py-3 rounded-xl font-bold text-sm sm:text-base bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg transition-all flex items-center justify-center gap-2';
+                commandsBtn.className = 'w-1/2 py-3 rounded-xl font-bold text-sm sm:text-base text-gray-400 hover:text-white transition-all flex items-center justify-center gap-2';
+            } else {
+                rulesTab.classList.add('hidden');
+                commandsTab.classList.remove('hidden');
+
+                commandsBtn.className = 'w-1/2 py-3 rounded-xl font-bold text-sm sm:text-base bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg transition-all flex items-center justify-center gap-2';
+                rulesBtn.className = 'w-1/2 py-3 rounded-xl font-bold text-sm sm:text-base text-gray-400 hover:text-white transition-all flex items-center justify-center gap-2';
+            }
+        }
+
+        // Copy IP function using execCommand to bypass iframe Clipboard API restrictions
+        function copyIP(ipText) {
+            const textarea = document.createElement('textarea');
+            textarea.value = ipText;
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-9999px';
+            textarea.style.top = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+            } catch (err) {
+                console.error('Kopieren fehlgeschlagen:', err);
+            }
+            
+            document.body.removeChild(textarea);
+
+            // Show Toast
+            const toast = document.getElementById('toast');
+            if (toast) {
+                toast.classList.remove('translate-y-24', 'opacity-0');
+                
+                setTimeout(() => {
+                    toast.classList.add('translate-y-24', 'opacity-0');
+                }, 3500);
+            }
+        }
+
+        // Mobile Menu Toggle
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        if (mobileBtn && mobileMenu) {
+            mobileBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+    </script>
+</body>
+</html>
